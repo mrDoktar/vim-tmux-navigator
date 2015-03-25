@@ -27,9 +27,13 @@ command! TmuxPaneCurrentCommand call <SID>TmuxPaneCurrentCommand()
 let s:tmux_is_last_pane = 0
 au WinEnter * let s:tmux_is_last_pane = 0
 
+function! s:PaneIsNotZoomed()
+  return match(system("tmux list-windows | grep active | awk '{print substr($2, length($2),1)}'"), "Z") == -1
+endfunction
+
 " Like `wincmd` but also change tmux panes instead of vim windows when needed.
 function! s:TmuxWinCmd(direction)
-  if s:InTmuxSession()
+  if s:InTmuxSession() && s:PaneIsNotZoomed()
     call s:TmuxAwareNavigate(a:direction)
   else
     call s:VimNavigate(a:direction)
